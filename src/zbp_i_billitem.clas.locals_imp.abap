@@ -14,7 +14,9 @@ CLASS lhc_billitem DEFINITION INHERITING FROM cl_abap_behavior_handler.
       calcsubtotal FOR DETERMINE ON MODIFY
         IMPORTING keys FOR billitem~calcsubtotal,
       calctotalamount FOR DETERMINE ON MODIFY
-        IMPORTING keys FOR billitem~calctotalamount.
+        IMPORTING keys FOR billitem~calctotalamount,
+      rba_header FOR READ
+            IMPORTING keys_rba FOR READ billitem\_header FULL result_requested RESULT result LINK association_links.
 ENDCLASS.
 
 CLASS lhc_billitem IMPLEMENTATION.
@@ -128,6 +130,9 @@ CLASS lhc_billitem IMPLEMENTATION.
         ENTITY billheader UPDATE FIELDS ( TotalAmount LastChangedAt )
         WITH VALUE #( ( BillID = ls_bill_key-BillID %is_draft = ls_bill_key-is_draft TotalAmount = lv_total LastChangedAt = lv_ts ) ).
     ENDLOOP.
+  ENDMETHOD.
+
+  METHOD rba_Header.
   ENDMETHOD.
 
 ENDCLASS.
