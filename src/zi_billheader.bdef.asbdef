@@ -1,0 +1,103 @@
+
+
+unmanaged implementation in class zbp_i_billsale unique;
+strict ( 2 );
+with draft;
+
+define behavior for ZI_BillHeader alias BillHeader
+implementation in class zbp_i_billheader unique
+draft table zdbill_hdr_d
+lock master total etag LastChangedAt
+authorization master ( global )
+etag master LastChangedAt
+early numbering
+{
+  create;
+  update;
+  delete;
+
+  field ( readonly ) BillID, TotalAmount;
+  association _Items { create; with draft; }
+
+  action MarkAsPaid result [1] $self;
+  action GenerateInvoice result [1] $self;
+  action SendEmail parameter ZA_EMAIL_INPUT result [1] $self;
+
+  side effects {
+    action MarkAsPaid affects field PaymentStatus;
+  }
+
+  draft action Edit;
+  draft action Resume;
+  draft action Activate optimized;
+  draft action Discard;
+
+  draft determine action Prepare {
+    validation ValidateCustomer;
+    validation ValidateBillingDate;
+    validation BillItem~ValidateQuantity;
+    validation BillItem~ValidateUnitPrice;
+  }
+
+  validation ValidateCustomer on save { field CustomerName; create; update; }
+  validation ValidateBillingDate on save { field BillingDate; create; update; }
+  determination SetDefaultStatus on modify { field PaymentStatus; create; }
+
+  mapping for zdbill_hdr
+  {
+    BillID         = bill_id;
+    CustomerName   = customer_name;
+    BillingDate    = billing_date;
+    TotalAmount    = total_amount;
+    Currency       = currency;
+    PaymentStatus  = payment_status;
+    InvoiceFile    = invoice_file;
+    MimeType       = mimetype;
+    FileName       = filename;
+    LastChangedAt  = last_changed_at;
+  }
+}
+
+define behavior for ZI_BillItem alias BillItem
+implementation in class zbp_i_billitem unique
+draft table zdbill_itm_d
+lock dependent by _Header
+authorization dependent by _Header
+etag master LastChangedAt
+{
+  update;
+  delete;
+
+  field ( mandatory : create ) ItemPosition;
+  field ( readonly : update ) ItemPosition;
+  field ( readonly ) BillID, Subtotal;
+
+  association _Header { with draft; }
+
+  validation ValidateQuantity on save { field Quantity; create; update; }
+  validation ValidateUnitPrice on save { field UnitPrice; create; update; }
+
+  // ✅ FIX: Added 'create' so Subtotal generates immediately on brand new rows
+  determination CalcSubtotal on modify { field Quantity, UnitPrice; create; }
+
+  // ✅ FIX: Added 'create' and 'delete' so the Header Total calculates when rows are added or removed!
+  determination CalcTotalAmount on modify { field Subtotal; create; delete; }
+
+  side effects {
+    field Quantity affects entity _Header;
+    field UnitPrice affects entity _Header;
+  }
+
+  mapping for zdbill_itm
+  {
+    BillID         = bill_id;
+    ItemPosition   = item_position;
+    ProductID      = product_id;
+    ProductName    = product_name;
+    Quantity       = quantity;
+    UnitPrice      = unit_price;
+    Subtotal       = subtotal;
+    Currency       = currency;
+    LastChangedAt  = last_changed_at;
+  }
+}

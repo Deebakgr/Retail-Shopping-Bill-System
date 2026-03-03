@@ -1,0 +1,30 @@
+projection;
+strict ( 2 );
+use draft;
+
+define behavior for ZC_BillHeader alias BillHeader
+{
+  use create;
+  use update;
+  use delete;
+
+  use action MarkAsPaid;
+  use action GenerateInvoice;
+  use action SendEmail;
+
+  use action Edit;
+  use action Resume;
+  use action Activate;
+  use action Discard;
+  use action Prepare;
+
+  use association _Items { create; with draft; }
+}
+
+define behavior for ZC_BillItem alias BillItem
+{
+  use update;
+  use delete;
+
+  use association _Header { with draft; }
+}

@@ -1,0 +1,73 @@
+@Metadata.layer: #CORE
+@UI.headerInfo: {
+  typeName:       'Bill',
+  typeNamePlural: 'Bills',
+  title:          { type: #STANDARD, value: 'BillID' },
+  description:    { type: #STANDARD, value: 'CustomerName' }
+}
+@UI.presentationVariant: [{
+  sortOrder:      [{ by: 'BillingDate', direction: #DESC }],
+  visualizations: [{ type: #AS_LINEITEM }]
+}]
+annotate view ZC_BillHeader with
+{
+  @UI.facet: [
+    { id: 'BillDetailsBox', type: #COLLECTION, label: 'Bill Details', position: 10 },
+    { id: 'BasicData', parentId: 'BillDetailsBox', type: #FIELDGROUP_REFERENCE, targetQualifier: 'BasicGroup', position: 10 },
+    { id: 'AmountData', parentId: 'BillDetailsBox', type: #FIELDGROUP_REFERENCE, targetQualifier: 'AmountGroup', position: 20 },
+    { id: 'BillItemsFacet', type: #LINEITEM_REFERENCE, label: 'Bill Items', position: 20, targetElement: '_Items' }
+  ]
+
+  @UI.lineItem: [
+    { position: 10, label: 'Bill ID' },
+    { type: #FOR_ACTION, dataAction: 'MarkAsPaid', label: 'Mark as Paid', position: 10 },
+    { type: #FOR_ACTION, dataAction: 'GenerateInvoice', label: 'Generate Invoice', position: 20 },
+    { type: #FOR_ACTION, dataAction: 'SendEmail', label: 'Email Invoice', position: 30 }
+  ]
+  @UI.identification: [
+    { type: #FOR_ACTION, dataAction: 'MarkAsPaid', label: 'Mark as Paid', position: 10 },
+    { type: #FOR_ACTION, dataAction: 'GenerateInvoice', label: 'Generate Invoice', position: 20 },
+    { type: #FOR_ACTION, dataAction: 'SendEmail', label: 'Email Invoice', position: 30 }
+  ]
+
+  @UI.selectionField: [{ position: 10 }]
+  @UI.fieldGroup: [{ qualifier: 'BasicGroup', position: 10, label: 'Bill ID' }]
+  BillID;
+
+  @UI.lineItem: [{ position: 20, label: 'Customer Name' }]
+  @UI.selectionField: [{ position: 20 }]
+  @UI.fieldGroup: [{ qualifier: 'BasicGroup', position: 20, label: 'Customer Name' }]
+  CustomerName;
+
+  @UI.lineItem: [{ position: 30, label: 'Billing Date' }]
+  @UI.selectionField: [{ position: 30 }]
+  @UI.fieldGroup: [{ qualifier: 'BasicGroup', position: 30, label: 'Billing Date' }]
+  BillingDate;
+
+  @UI.lineItem: [{ position: 40, label: 'Total Amount' }]
+  @UI.fieldGroup: [{ qualifier: 'AmountGroup', position: 10, label: 'Total Amount' }]
+  TotalAmount;
+
+@UI.lineItem: [{ position: 50, label: 'Currency' }]
+  @UI.fieldGroup: [{ qualifier: 'AmountGroup', position: 20, label: 'Currency' }]
+  Currency;
+
+
+  @UI.lineItem: [{ position: 60, label: 'Payment Status', criticality: 'StatusCriticality', criticalityRepresentation: #WITH_ICON }]
+  @UI.selectionField: [{ position: 40 }]
+  @UI.fieldGroup: [{ qualifier: 'AmountGroup', position: 30, label: 'Payment Status', criticality: 'StatusCriticality' }]
+  PaymentStatus;
+  
+  @UI.hidden: true
+  StatusCriticality;
+  
+  @UI.fieldGroup: [{ qualifier: 'AmountGroup', position: 50, label: 'Download Invoice' }]
+  InvoiceFile;
+  
+  @UI.hidden: true
+  MimeType;
+  @UI.hidden: true
+  FileName;
+  @UI.hidden: true
+  LastChangedAt;
+}

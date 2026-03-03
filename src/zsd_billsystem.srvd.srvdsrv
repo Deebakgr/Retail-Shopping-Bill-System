@@ -1,0 +1,5 @@
+@EndUserText.label: 'Service Definition for Retail Bill System'
+define service ZSD_BillSystem {
+  expose ZC_BillHeader as BillHeader;
+  expose ZC_BillItem   as BillItem;
+}
