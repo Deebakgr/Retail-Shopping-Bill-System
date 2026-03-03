@@ -115,26 +115,49 @@ METHOD create.
   ENDMETHOD.
 
   METHOD create_ba_items.
-    DATA(lo_util) = zbp_i_util=>get_instance( ).
-    LOOP AT entities_ba INTO DATA(entity_ba).
-      DATA lv_next_pos TYPE i VALUE 0.
-      SELECT MAX( item_position ) FROM zdbill_itm WHERE bill_id = @entity_ba-BillID INTO @DATA(lv_max_act).
-      SELECT MAX( itemposition ) FROM zdbill_itm_d WHERE billid = @entity_ba-BillID INTO @DATA(lv_max_drf).
-      lv_next_pos = lv_max_act.
-      IF lv_max_drf > lv_next_pos. lv_next_pos = lv_max_drf. ENDIF.
+  DATA(lo_util) = zbp_i_util=>get_instance( ).
+  LOOP AT entities_ba INTO DATA(entity_ba).
+    DATA lv_next_pos TYPE i VALUE 0.
+    SELECT MAX( item_position ) FROM zdbill_itm
+      WHERE bill_id = @entity_ba-BillID INTO @DATA(lv_max_act).
+    SELECT MAX( itemposition ) FROM zdbill_itm_d
+      WHERE billid = @entity_ba-BillID INTO @DATA(lv_max_drf).
+    lv_next_pos = lv_max_act.
+    IF lv_max_drf > lv_next_pos. lv_next_pos = lv_max_drf. ENDIF.
 
-      LOOP AT entity_ba-%target INTO DATA(item).
+    LOOP AT entity_ba-%target INTO DATA(item).
+
+      " ✅ FIX: Use user-entered position, only auto-generate if empty
+      DATA lv_item_pos TYPE i.
+      IF item-ItemPosition IS NOT INITIAL AND item-ItemPosition > 0.
+        lv_item_pos = item-ItemPosition.
+      ELSE.
         lv_next_pos = lv_next_pos + 10.
-        DATA ls_item TYPE zdbill_itm.
-        ls_item-bill_id = entity_ba-BillID. ls_item-item_position = lv_next_pos. ls_item-product_id = item-ProductID.
-        ls_item-product_name = item-ProductName. ls_item-quantity = item-Quantity. ls_item-unit_price = item-UnitPrice.
-        ls_item-subtotal = item-Quantity * item-UnitPrice. ls_item-currency = item-Currency. GET TIME STAMP FIELD ls_item-last_changed_at.
+        lv_item_pos = lv_next_pos.
+      ENDIF.
 
-        lo_util->set_itm_value( EXPORTING im_bill_itm = ls_item IMPORTING ex_created = DATA(lv_created) ).
-        APPEND VALUE #( %cid = item-%cid %is_draft = item-%is_draft BillID = entity_ba-BillID ItemPosition = lv_next_pos ) TO mapped-billitem.
-      ENDLOOP.
+      DATA ls_item TYPE zdbill_itm.
+      ls_item-bill_id       = entity_ba-BillID.
+      ls_item-item_position = lv_item_pos.
+      ls_item-product_id    = item-ProductID.
+      ls_item-product_name  = item-ProductName.
+      ls_item-quantity      = item-Quantity.
+      ls_item-unit_price    = item-UnitPrice.
+      ls_item-subtotal      = item-Quantity * item-UnitPrice.
+      ls_item-currency      = item-Currency.
+      GET TIME STAMP FIELD ls_item-last_changed_at.
+
+      lo_util->set_itm_value(
+        EXPORTING im_bill_itm = ls_item
+        IMPORTING ex_created  = DATA(lv_created) ).
+
+      APPEND VALUE #( %cid         = item-%cid
+                      %is_draft    = item-%is_draft
+                      BillID       = entity_ba-BillID
+                      ItemPosition = lv_item_pos ) TO mapped-billitem.
     ENDLOOP.
-  ENDMETHOD.
+  ENDLOOP.
+ENDMETHOD.
 
   METHOD rba_items.
     LOOP AT keys_rba INTO DATA(key).
