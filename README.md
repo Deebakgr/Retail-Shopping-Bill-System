@@ -1,9 +1,9 @@
 
-# Retail Shopping Bill System (Managed Scenario) – ABAP RAP
+# Retail Shopping Bill System (Unmanaged Scenario) – ABAP RAP
 
 ## Project Overview
 
-The **Retail Shopping Bill System** is an ABAP RESTful Application Programming Model (RAP) application developed using the **Managed Scenario**. The system is designed to help retail shops generate bills for customers efficiently. It allows users to manage product details, calculate billing amounts automatically, and generate retail invoices.
+The **Retail Shopping Bill System** is an ABAP RESTful Application Programming Model (RAP) application developed using the **Unmanaged Scenario**. The system is designed to help retail shops generate bills for customers efficiently. It allows users to manage product details, calculate billing amounts automatically, and generate retail invoices.
 
 This application demonstrates how RAP can be used to build modern **Fiori-based transactional applications** with minimal manual coding by leveraging the **managed behavior implementation** provided by the RAP framework.
 
@@ -14,7 +14,7 @@ This application demonstrates how RAP can be used to build modern **Fiori-based 
 The main objectives of this project are:
 
 * To automate retail billing operations.
-* To demonstrate the implementation of **ABAP RAP Managed Scenario**.
+* To demonstrate the implementation of **ABAP RAP Unmanaged Scenario**.
 * To create a **Fiori Elements based UI** for retail billing.
 * To manage product and billing data efficiently.
 * To automatically handle CRUD operations using RAP managed behavior.
