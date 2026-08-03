@@ -86,3 +86,13 @@ The application follows the RAP architecture:
 
 ---
 
+---
+## Images
+<img width="1914" height="930" alt="Screenshot 2026-08-03 193535" src="https://github.com/user-attachments/assets/e10016cc-321b-4a42-bf45-36309f35bdcf" />
+
+<img width="875" height="614" alt="Screenshot 2026-08-03 193554" src="https://github.com/user-attachments/assets/d301dd99-5b34-4213-84fb-532009918ce5" />
+
+---
+
+
+
